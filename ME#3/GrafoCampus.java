@@ -1,227 +1,161 @@
+import java.util.Arrays;
+
 public class GrafoCampus {
 
-    // ATRIBUTOS
-    private String[] edificios;
+    private int[][] matrizAdyacencia;
+    private String[] nombresEdificios;
+    private int cantidadNodos;
+    private int capacidadMaxima;
 
-    // MATRIZ DE ADYACENCIA
-    private int[][] distancias;
+    public GrafoCampus(int capacidadMaxima) {
+        this.capacidadMaxima = capacidadMaxima;
+        this.cantidadNodos = 0;
+        this.matrizAdyacencia = new int[capacidadMaxima][capacidadMaxima];
+        this.nombresEdificios = new String[capacidadMaxima];
 
-    private int cantidadEdificios;
+        for (int i = 0; i < capacidadMaxima; i++) {
+            Arrays.fill(matrizAdyacencia[i], 0);
+        }
+    }
 
-    // CONSTRUCTOR
-    public GrafoCampus(
-            int cantidadEdificios
-    ) {
-
-        this.cantidadEdificios =
-                cantidadEdificios;
-
-        edificios =
-                new String[cantidadEdificios];
-
-        distancias =
-                new int[cantidadEdificios]
-                        [cantidadEdificios];
-
-        // INICIALIZAR MATRIZ
-        for (int i = 0;
-             i < cantidadEdificios;
-             i++) {
-
-            for (int j = 0;
-                 j < cantidadEdificios;
-                 j++) {
-
-                if (i == j) {
-
-                    distancias[i][j] = 0;
-
-                } else {
-
-                    distancias[i][j] =
-                            Integer.MAX_VALUE;
+    public void agregarEdificio(String nombre) {
+        if (cantidadNodos < capacidadMaxima) {
+            // Validar que no se repita el edificio si se corre el caso 14 varias veces
+            for (int i = 0; i < cantidadNodos; i++) {
+                if (nombresEdificios[i].equalsIgnoreCase(nombre)) {
+                    return; 
                 }
             }
+            nombresEdificios[cantidadNodos] = nombre;
+            cantidadNodos++;
         }
     }
 
-    // AGREGAR EDIFICIO
-    public void agregarEdificio(
-            int indice,
-            String nombre
-    ) {
+    public void agregarCamino(String origen, String destino, int distancia) {
+        int indiceOrigen = buscarIndice(origen);
+        int indiceDestino = buscarIndice(destino);
 
-        edificios[indice] = nombre;
-    }
-
-    // AGREGAR CONEXION
-    public void agregarConexion(
-            int origen,
-            int destino,
-            int distancia
-    ) {
-
-        // GRAFO NO DIRIGIDO
-        distancias[origen][destino] =
-                distancia;
-
-        distancias[destino][origen] =
-                distancia;
-    }
-
-    // ALGORITMO DE DIJKSTRA
-    public void dijkstra(
-            int origen,
-            int destino
-    ) {
-
-        int[] distanciaMinima =
-                new int[cantidadEdificios];
-
-        boolean[] visitado =
-                new boolean[cantidadEdificios];
-
-        int[] anterior =
-                new int[cantidadEdificios];
-
-        // INICIALIZAR
-        for (int i = 0;
-             i < cantidadEdificios;
-             i++) {
-
-            distanciaMinima[i] =
-                    Integer.MAX_VALUE;
-
-            visitado[i] = false;
-
-            anterior[i] = -1;
+        if (indiceOrigen != -1 && indiceDestino != -1) {
+            matrizAdyacencia[indiceOrigen][indiceDestino] = distancia;
+            matrizAdyacencia[indiceDestino][indiceOrigen] = distancia;
         }
+    }
 
-        distanciaMinima[origen] = 0;
-
-        // RECORRIDO
-        for (int i = 0;
-             i < cantidadEdificios - 1;
-             i++) {
-
-            int nodoActual =
-                    obtenerMinimo(
-                            distanciaMinima,
-                            visitado
-                    );
-
-            visitado[nodoActual] =
-                    true;
-
-            for (int j = 0;
-                 j < cantidadEdificios;
-                 j++) {
-
-                if (!visitado[j]
-                        &&
-                        distancias[nodoActual][j]
-                                != Integer.MAX_VALUE
-                        &&
-                        distanciaMinima[nodoActual]
-                                != Integer.MAX_VALUE
-                        &&
-                        distanciaMinima[nodoActual]
-                                + distancias[nodoActual][j]
-                                < distanciaMinima[j]) {
-
-                    distanciaMinima[j] =
-                            distanciaMinima[nodoActual]
-                                    +
-                                    distancias[nodoActual][j];
-
-                    anterior[j] =
-                            nodoActual;
-                }
+    private int buscarIndice(String nombre) {
+        for (int i = 0; i < cantidadNodos; i++) {
+            if (nombresEdificios[i].equalsIgnoreCase(nombre)) {
+                return i;
             }
         }
-
-        // MOSTRAR RESULTADO
-        System.out.println(
-                "\n=== RUTA MAS CORTA ==="
-        );
-
-        mostrarRuta(
-                anterior,
-                destino
-        );
-
-        System.out.println(
-                "\nDistancia total: "
-                + distanciaMinima[destino]
-                + " metros"
-        );
+        return -1;
     }
 
-    // OBTENER DISTANCIA MINIMA
-    private int obtenerMinimo(
-            int[] distancia,
-            boolean[] visitado
-    ) {
-
-        int minimo =
-                Integer.MAX_VALUE;
-
-        int indiceMinimo = -1;
-
-        for (int i = 0;
-             i < cantidadEdificios;
-             i++) {
-
-            if (!visitado[i]
-                    &&
-                    distancia[i] < minimo) {
-
-                minimo = distancia[i];
-
-                indiceMinimo = i;
-            }
+    // NUEVO MÉTODO: Para mostrar los edificios tal cual como lo pide la guía antes de pedir los datos
+    public void mostrarEdificiosRegistrados() {
+        System.out.println("Edificios registrados:");
+        for (int i = 0; i < cantidadNodos; i++) {
+            System.out.println(i + ": " + nombresEdificios[i]);
         }
-
-        return indiceMinimo;
     }
 
-    // MOSTRAR RUTA
-    private void mostrarRuta(
-            int[] anterior,
-            int actual
-    ) {
+    public void calcularRutaMasCorta(String nombreOrigen, String nombreDestino) {
+        int origen = buscarIndice(nombreOrigen);
+        int destino = buscarIndice(nombreDestino);
 
-        if (actual == -1) {
-
+        if (origen == -1 || destino == -1) {
+            System.out.println("Error: Edificio de origen o destino no valido.");
             return;
         }
 
-        mostrarRuta(
-                anterior,
-                anterior[actual]
-        );
+        int[] distancias = new int[cantidadNodos];
+        boolean[] visitados = new boolean[cantidadNodos];
+        int[] predecesores = new int[cantidadNodos];
 
-        System.out.print(
-                edificios[actual]
-                + " -> "
-        );
+        for (int i = 0; i < cantidadNodos; i++) {
+            distancias[i] = Integer.MAX_VALUE;
+            visitados[i] = false;
+            predecesores[i] = -1;
+        }
+
+        distancias[origen] = 0;
+
+        for (int i = 0; i < cantidadNodos - 1; i++) {
+            int u = encontrarMinimaDistancia(distancias, visitados);
+            if (u == -1) break;
+
+            visitados[u] = true;
+
+            for (int v = 0; v < cantidadNodos; v++) {
+                if (!visitados[v] && matrizAdyacencia[u][v] != 0 && distancias[u] != Integer.MAX_VALUE 
+                        && distancias[u] + matrizAdyacencia[u][v] < distancias[v]) {
+                    distancias[v] = distancias[u] + matrizAdyacencia[u][v];
+                    predecesores[v] = u;
+                }
+            }
+        }
+
+        imprimirResultadoDijkstra(origen, destino, distancias, predecesores);
     }
 
-    // MOSTRAR EDIFICIOS
-    public void mostrarEdificios() {
+    private int encontrarMinimaDistancia(int[] distancias, boolean[] visitados) {
+        int min = Integer.MAX_VALUE;
+        int minIndice = -1;
 
-        System.out.println(
-                "\n=== EDIFICIOS ==="
-        );
+        for (int v = 0; v < cantidadNodos; v++) {
+            if (!visitados[v] && distancias[v] <= min) {
+                min = distancias[v];
+                minIndice = v;
+            }
+        }
+        return minIndice;
+    }
 
-        for (int i = 0;
-             i < edificios.length;
-             i++) {
+    // ACOMODADO: Formato de impresión secuencial corregido sin alterar variables de cálculo
+    private void imprimirResultadoDijkstra(int origen, int destino, int[] distancias, int[] predecesores) {
+        if (distancias[destino] == Integer.MAX_VALUE) {
+            System.out.println("\nNo existe un camino disponible entre los edificios.");
+            return;
+        }
 
-            System.out.println(
-                    i + ": "
-                    + edificios[i]
-            );
+        System.out.println("\n--- RESULTADO ---");
+        
+        // Reconstrucción del camino
+        int[] caminoInvertido = new int[cantidadNodos];
+        int cuentaPasos = 0;
+        int pasoActual = destino;
+
+        while (pasoActual != -1) {
+            caminoInvertido[cuentaPasos] = pasoActual;
+            cuentaPasos++;
+            pasoActual = predecesores[pasoActual];
+        }
+
+        // Impresión secuencial corregida: NodoOrigen -> NodoSiguiente (Metros) -> NodoSiguiente (Metros)
+        System.out.print("Ruta mas corta: ");
+        for (int i = cuentaPasos - 1; i >= 0; i--) {
+            int nodoActual = caminoInvertido[i];
+            
+            if (i == cuentaPasos - 1) {
+                // Es el punto de partida inicial
+                System.out.print(nombresEdificios[nodoActual]);
+            } else {
+                // Es un paso intermedio o el destino final, recuperamos el peso del tramo anterior
+                int nodoAnterior = caminoInvertido[i + 1];
+                int pesoTramo = matrizAdyacencia[nodoAnterior][nodoActual];
+                System.out.print(" -> " + nombresEdificios[nodoActual] + " (" + pesoTramo + "m)");
+            }
+        }
+        System.out.println();
+        System.out.println("Distancia TOTAL: " + distancias[destino] + " metros");
+    }
+
+    public void mostrarMatrizAdyacencia() {
+        System.out.println("\n=== MATRIZ DE ADYACENCIA DEL CAMPUS ===");
+        for (int i = 0; i < cantidadNodos; i++) {
+            for (int j = 0; j < cantidadNodos; j++) {
+                System.out.print(matrizAdyacencia[i][j] + "\t");
+            }
+            System.out.println();
         }
     }
 }

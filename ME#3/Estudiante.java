@@ -13,131 +13,67 @@ public class Estudiante extends Persona {
     private LinkedList<String> historialMaterias;
 
     // CONSTRUCTOR
-    public Estudiante(
-            String id,
-            String nombre,
-            String email,
-            int semestreActual
-    ) {
-
-        // CONSTRUCTOR DE LA CLASE ESTUDIANTE
+    public Estudiante(String id, String nombre, String email, int semestreActual) {
         super(id, nombre, email);
-
         this.semestreActual = semestreActual;
-
+        
         // 10 semestres y 20 materias
         notas = new Double[10][20];
-
         historialMaterias = new LinkedList<>();
     }
 
-    // METODO ABSTRACTO
+    // --- MÉTODO AGREGADO PARA CORREGIR EL ERROR EN UNIVERSIDAD ---
+    public void agregarMateria(Materia mat) {
+        // Agregamos el código de la materia al historial para validación de pre-requisitos
+        this.historialMaterias.add(mat.getCodigo());
+    }
+
+    // MÉTODO ABSTRACTO
     @Override
     public void mostrarInformacion() {
-
         System.out.println("ID: " + id);
-
         System.out.println("Nombre: " + nombre);
-
         System.out.println("Email: " + email);
-
-        System.out.println(
-                "Semestre: "
-                + semestreActual
-        );
-
-        System.out.println(
-                "Promedio acumulado: "
-                + calcularPromedio()
-        );
+        System.out.println("Semestre: " + semestreActual);
+        System.out.println("Promedio acumulado: " + calcularPromedio());
     }
 
     // REGISTRAR NOTA
-    public void registrarNota(
-            int semestre,
-            int materia,
-            double nota
-    ) {
-
+    public void registrarNota(int semestre, int materia, double nota) {
         notas[semestre][materia] = nota;
     }
 
     // CALCULAR PROMEDIO
     public double calcularPromedio() {
-
         double suma = 0;
-
         int contador = 0;
-
         for (int i = 0; i < notas.length; i++) {
-
-            for (int j = 0;
-                 j < notas[i].length;
-                 j++) {
-
+            for (int j = 0; j < notas[i].length; j++) {
                 if (notas[i][j] != null) {
-
                     suma += notas[i][j];
-
                     contador++;
                 }
             }
         }
-
-        // EVITAR DIVISION POR CERO
-        if (contador == 0) {
-
-            return 0;
-        }
-
-        return suma / contador;
+        return (contador == 0) ? 0 : suma / contador;
     }
 
-    // AGREGAR MATERIA AL HISTORIAL
-    public void agregarMateriaHistorial(
-            String materia
-    ) {
-
-        historialMaterias.add(materia);
+    // AGREGAR MATERIA AL HISTORIAL (Manteniendo compatibilidad)
+    public void agregarMateriaHistorial(String codigoMateria) {
+        historialMaterias.add(codigoMateria);
     }
 
     // MOSTRAR HISTORIAL
     public void mostrarHistorial() {
-
-        System.out.println(
-                "\nHISTORIAL ACADEMICO:"
-        );
-
-        for (String materia
-                : historialMaterias) {
-
+        System.out.println("\nHISTORIAL ACADEMICO:");
+        for (String materia : historialMaterias) {
             System.out.println(materia);
         }
     }
 
     // GETTERS Y SETTERS
-
-    public int getSemestreActual() {
-
-        return semestreActual;
-    }
-
-    public void setSemestreActual(
-            int semestreActual
-    ) {
-
-        this.semestreActual =
-                semestreActual;
-    }
-
-    public Double[][] getNotas() {
-
-        return notas;
-    }
-
-    public LinkedList<String>
-    getHistorialMaterias() {
-
-        return historialMaterias;
-    }
+    public int getSemestreActual() { return semestreActual; }
+    public void setSemestreActual(int semestreActual) { this.semestreActual = semestreActual; }
+    public Double[][] getNotas() { return notas; }
+    public LinkedList<String> getHistorialMaterias() { return historialMaterias; }
 }

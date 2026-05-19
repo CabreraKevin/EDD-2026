@@ -1,135 +1,65 @@
 public class Aula {
 
-    // ATRIBUTOS
     private String nombre;
+    private int capacidad;
 
-    // MATRIZ OBLIGATORIA
-    // [dia][hora]
-    private boolean[][] horarios;
+    // MATRIZ BOOLEAN OBLIGATORIA (7 dias de la semana x 24 horas del dia)
+    // true = ocupado, false = disponible
+    private boolean[][] horarioDisponibilidad;
 
     // CONSTRUCTOR
-    public Aula(String nombre) {
-
+    public Aula(String nombre, int capacidad) {
         this.nombre = nombre;
-
-        // 7 dias y 24 horas
-        horarios = new boolean[7][24];
+        this.capacidad = capacidad;
+        
+        // Inicializacion exacta con las dimensiones de la guia [7][24]
+        this.horarioDisponibilidad = new boolean[7][24];
     }
 
-    // RESERVAR HORARIO
-    public boolean reservar(
-            int dia,
-            int hora,
-            int duracion
-    ) {
-
-        // VERIFICAR DISPONIBILIDAD
-        for (int i = hora;
-             i < hora + duracion;
-             i++) {
-
-            if (horarios[dia][i]) {
-
-                System.out.println(
-                        "Horario ocupado."
-                );
-
-                return false;
+    // ASIGNAR UN HORARIO (Marcar como ocupado)
+    public boolean reservarHorario(int dia, int hora) {
+        if (dia >= 0 && dia < 7 && hora >= 0 && hora < 24) {
+            if (!horarioDisponibilidad[dia][hora]) {
+                horarioDisponibilidad[dia][hora] = true; // Se ocupa el espacio
+                return true;
             }
         }
-
-        // RESERVAR
-        for (int i = hora;
-             i < hora + duracion;
-             i++) {
-
-            horarios[dia][i] = true;
-        }
-
-        System.out.println(
-                "Reserva realizada correctamente."
-        );
-
-        return true;
+        return false; // Dia/Hora invalido o ya estaba ocupado
     }
 
-    // LIBERAR HORARIO
-    public void liberar(
-            int dia,
-            int hora,
-            int duracion
-    ) {
-
-        for (int i = hora;
-             i < hora + duracion;
-             i++) {
-
-            horarios[dia][i] = false;
+    // LIBERAR UN HORARIO
+    public void liberarHorario(int dia, int hora) {
+        if (dia >= 0 && dia < 7 && hora >= 0 && hora < 24) {
+            horarioDisponibilidad[dia][hora] = false;
         }
-
-        System.out.println(
-                "Horario liberado."
-        );
     }
 
-    // CONSULTAR DISPONIBILIDAD
-    public boolean consultarDisponibilidad(
-            int dia,
-            int hora
-    ) {
-
-        return !horarios[dia][hora];
-    }
-
-    // MOSTRAR HORARIOS
-    public void mostrarHorarios() {
-
-        System.out.println(
-                "\nHORARIOS DEL AULA:"
-        );
-
-        for (int i = 0;
-             i < horarios.length;
-             i++) {
-
-            System.out.print(
-                    "Dia " + i + ": "
-            );
-
-            for (int j = 0;
-                 j < horarios[i].length;
-                 j++) {
-
-                if (horarios[i][j]) {
-
-                    System.out.print("[X]");
-
-                } else {
-
-                    System.out.print("[ ]");
-                }
-            }
-
-            System.out.println();
+    // VERIFICAR DISPONIBILIDAD
+    public boolean estaDisponible(int dia, int hora) {
+        if (dia >= 0 && dia < 7 && hora >= 0 && hora < 24) {
+            return !horarioDisponibilidad[dia][hora];
         }
+        return false;
     }
 
     // GETTERS Y SETTERS
-
     public String getNombre() {
-
         return nombre;
     }
 
-    public void setNombre(
-            String nombre
-    ) {
-
+    public void setNombre(String nombre) {
         this.nombre = nombre;
     }
 
-    public boolean[][] getHorarios() {
+    public int getCapacidad() {
+        return capacidad;
+    }
 
-        return horarios;
+    public void setCapacidad(int capacity) {
+        this.capacidad = capacity;
+    }
+
+    public boolean[][] getHorarioDisponibilidad() {
+        return horarioDisponibilidad;
     }
 }

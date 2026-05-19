@@ -1,251 +1,70 @@
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.ArrayDeque;
 
 public class Materia {
-
-    // ATRIBUTOS
     private String codigo;
-
     private String nombre;
-
     private int cuposMaximos;
-
     private int cuposDisponibles;
+    private int creditos; // <- Atributo requerido por la guía del proyecto final
+    private LinkedList<String> prerequisitos; // Lista enlazada obligatoria
+    private LinkedList<Estudiante> inscritos;
+    private Queue<Estudiante> colaEspera;     // Cola de espera obligatoria
 
-    private int creditos;
-
-    // LISTA ENLAZADA OBLIGATORIA
-    private LinkedList<String> preRequisitos;
-
-    // LISTA DE ESTUDIANTES INSCRITOS
-    private LinkedList<Estudiante> estudiantesInscritos;
-
-    // COLA DE ESPERA OBLIGATORIA
-    private Queue<Estudiante> colaEspera;
-
-    // CONSTRUCTOR
-    public Materia(
-            String codigo,
-            String nombre,
-            int cuposMaximos,
-            int creditos
-    ) {
-
+    // CONSTRUCTOR ACTUALIZADO A 4 PARÁMETROS PARA DAR SOPORTE AL MAIN
+    public Materia(String codigo, String nombre, int cuposMaximos, int creditos) {
         this.codigo = codigo;
-
         this.nombre = nombre;
-
         this.cuposMaximos = cuposMaximos;
-
         this.cuposDisponibles = cuposMaximos;
-
-        this.creditos = creditos;
-
-        preRequisitos = new LinkedList<>();
-
-        estudiantesInscritos =
-                new LinkedList<>();
-
-        colaEspera = new LinkedList<>();
+        this.creditos = creditos; // <- Asignación del nuevo campo
+        this.prerequisitos = new LinkedList<>();
+        this.inscritos = new LinkedList<>();
+        this.colaEspera = new ArrayDeque<>();
     }
 
-    // AGREGAR PRE-REQUISITO
-    public void agregarPreRequisito(
-            String materia
-    ) {
+    public String getCodigo() { return codigo; }
+    public String getNombre() { return nombre; }
+    public int getCreditos() { return creditos; } // <- Getter para consultar los créditos
+    public LinkedList<String> getPrerequisitos() { return prerequisitos; }
+    public LinkedList<Estudiante> getInscritos() { return inscritos; }
+    public Queue<Estudiante> getColaEspera() { return colaEspera; }
 
-        preRequisitos.add(materia);
-
-        System.out.println(
-                "Pre-requisito agregado."
-        );
+    public void agregarPrerequisito(String codigoMateria) {
+        prerequisitos.add(codigoMateria);
     }
 
-    // MOSTRAR PRE-REQUISITOS
-    public void mostrarPreRequisitos() {
-
-        System.out.println(
-                "\nPRE-REQUISITOS:"
-        );
-
-        for (String requisito
-                : preRequisitos) {
-
-            System.out.println(requisito);
-        }
-    }
-
-    // INSCRIBIR ESTUDIANTE
-    public void inscribirEstudiante(
-            Estudiante estudiante
-    ) {
-
-        // VERIFICAR CUPOS
-        if (cuposDisponibles > 0) {
-
-            estudiantesInscritos.add(
-                    estudiante
-            );
-
-            cuposDisponibles--;
-
-            System.out.println(
-                    estudiante.getNombre()
-                    + " inscrito correctamente."
-            );
-
-        } else {
-
-            colaEspera.add(estudiante);
-
-            System.out.println(
-                    "Materia llena. "
-                    + estudiante.getNombre()
-                    + " agregado a cola de espera."
-            );
-        }
-    }
-
-    // CANCELAR INSCRIPCION
-    public void cancelarInscripcion(
-            Estudiante estudiante
-    ) {
-
-        boolean eliminado =
-                estudiantesInscritos.remove(
-                        estudiante
-                );
-
-        if (eliminado) {
-
-            cuposDisponibles++;
-
-            System.out.println(
-                    "Inscripcion cancelada."
-            );
-
-            // ASIGNAR CUPO AL PRIMERO
-            // DE LA COLA
-            if (!colaEspera.isEmpty()) {
-
-                Estudiante siguiente =
-                        colaEspera.poll();
-
-                estudiantesInscritos.add(
-                        siguiente
-                );
-
-                cuposDisponibles--;
-
-                System.out.println(
-                        "Cupo asignado automaticamente a: "
-                        + siguiente.getNombre()
-                );
+    public void inscribirEstudiante(Estudiante e) throws CupoLlenoException, PreRequisitoNoAprobadoException {
+        // 1. Verificar Pre-requisitos
+        for (String pre : prerequisitos) {
+            if (!e.getHistorialMaterias().contains(pre)) {
+                throw new PreRequisitoNoAprobadoException("El estudiante no ha aprobado el pre-requisito: " + pre);
             }
-
-        } else {
-
-            System.out.println(
-                    "El estudiante no estaba inscrito."
-            );
         }
-    }
 
-    // MOSTRAR COLA DE ESPERA
-    public void mostrarColaEspera() {
-
-        System.out.println(
-                "\nCOLA DE ESPERA:"
-        );
-
-        int posicion = 1;
-
-        for (Estudiante estudiante
-                : colaEspera) {
-
-            System.out.println(
-                    "Posicion "
-                    + posicion
-                    + ": "
-                    + estudiante.getNombre()
-            );
-
-            posicion++;
+        // 2. Verificar disponibilidad de cupos
+        if (cuposDisponibles <= 0) {
+            colaEspera.add(e);
+            throw new CupoLlenoException("Materia llena. Agregado a la cola de espera.");
         }
+
+        inscritos.add(e);
+        cuposDisponibles--;
     }
 
-    // MOSTRAR INSCRITOS
-    public void mostrarInscritos() {
-
-        System.out.println(
-                "\nESTUDIANTES INSCRITOS:"
-        );
-
-        for (Estudiante estudiante
-                : estudiantesInscritos) {
-
-            System.out.println(
-                    estudiante.getNombre()
-            );
+    public void cancelarInscripcion(Estudiante e) {
+        if (inscritos.remove(e)) {
+            cuposDisponibles++;
+            System.out.println("Inscripción cancelada para: " + e.getNombre());
+            
+            // Asignación automática al primero en cola
+            if (!colaEspera.isEmpty()) {
+                Estudiante siguiente = colaEspera.poll();
+                inscritos.add(siguiente);
+                cuposDisponibles--;
+                System.out.println("Cupo asignado automáticamente a: " + siguiente.getNombre());
+            }
         }
-    }
-
-    // GETTERS Y SETTERS
-
-    public String getCodigo() {
-
-        return codigo;
-    }
-
-    public void setCodigo(
-            String codigo
-    ) {
-
-        this.codigo = codigo;
-    }
-
-    public String getNombre() {
-
-        return nombre;
-    }
-
-    public void setNombre(
-            String nombre
-    ) {
-
-        this.nombre = nombre;
-    }
-
-    public int getCuposMaximos() {
-
-        return cuposMaximos;
-    }
-
-    public int getCuposDisponibles() {
-
-        return cuposDisponibles;
-    }
-
-    public int getCreditos() {
-
-        return creditos;
-    }
-
-    public LinkedList<String>
-    getPreRequisitos() {
-
-        return preRequisitos;
-    }
-
-    public Queue<Estudiante>
-    getColaEspera() {
-
-        return colaEspera;
-    }
-
-    public LinkedList<Estudiante>
-    getEstudiantesInscritos() {
-
-        return estudiantesInscritos;
     }
 }
