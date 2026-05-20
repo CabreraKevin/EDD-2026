@@ -102,7 +102,7 @@ public class Main {
                     else System.out.println("Estudiante no encontrado.");
                     break;
 
-                // --- BLOQUE CORREGIDO: DESHACER ---
+                // --- BLOQUE : DESHACER ---
                 case 12:
                     try {
                         uni.getSistemaDeshacer().deshacer();
@@ -111,7 +111,7 @@ public class Main {
                     }
                     break;
 
-                // --- BLOQUE CORREGIDO: REHACER ---
+                // --- BLOQUE : REHACER ---
                 case 13:
                     try {
                         uni.getSistemaDeshacer().rehacer();

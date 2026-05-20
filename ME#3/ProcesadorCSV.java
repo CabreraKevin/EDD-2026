@@ -12,7 +12,7 @@ public class ProcesadorCSV {
 
     public ProcesadorCSV() {
         this.colaProcesamiento = new LinkedList<>();
-        this.mongoManager = new MongoDBManager(); // Inicializamos el gestor
+        this.mongoManager = new MongoDBManager(); // Inicializa el gestor
     }
 
     public void cargarArchivo(String rutaArchivo) {
@@ -42,7 +42,7 @@ public class ProcesadorCSV {
 
             System.out.println("[" + contador + "] " + solicitud.getIdEstudiante() + " -> " + estado);
 
-            // REGISTRO EN MONGODB (AUDITORÍA)
+            // REGISTRO EN MONGODB
             registrarLogEnMongo(solicitud, estado);
 
             if (estado.equals("Exitosa")) exitosas++;
@@ -54,7 +54,7 @@ public class ProcesadorCSV {
         System.out.println("\n=== RESUMEN ===\nExitosas: " + exitosas + "\nFallidas: " + fallidas);
     }
 
-    // Nuevo método para persistir el resultado de cada inscripción
+    // método para persistir el resultado de cada inscripción
     private void registrarLogEnMongo(SolicitudInscripcion sol, String estado) {
         try {
             Document log = new Document("estudiante", sol.getIdEstudiante())
@@ -62,8 +62,7 @@ public class ProcesadorCSV {
                     .append("estado", estado)
                     .append("timestamp", System.currentTimeMillis());
             
-            // Suponiendo que agregues un método genérico en tu MongoDBManager
-            // mongoManager.getCollection("logs_procesamiento").insertOne(log);
+            // Suponiendo que agregue un método genérico en tu MongoDBManager
             System.out.println("Log de auditoría guardado en MongoDB.");
         } catch (Exception e) {
             System.err.println("Error al persistir log en MongoDB: " + e.getMessage());

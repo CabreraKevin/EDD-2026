@@ -3,7 +3,7 @@ public class Aula {
     private String nombre;
     private int capacidad;
 
-    // MATRIZ BOOLEAN OBLIGATORIA (7 dias de la semana x 24 horas del dia)
+    // MATRIZ BOOLEAN  (7 dias de la semana x 24 horas del dia)
     // true = ocupado, false = disponible
     private boolean[][] horarioDisponibilidad;
 
@@ -16,7 +16,7 @@ public class Aula {
         this.horarioDisponibilidad = new boolean[7][24];
     }
 
-    // ASIGNAR UN HORARIO (Marcar como ocupado)
+    // ASIGNAR UN HORARIO 
     public boolean reservarHorario(int dia, int hora) {
         if (dia >= 0 && dia < 7 && hora >= 0 && hora < 24) {
             if (!horarioDisponibilidad[dia][hora]) {
@@ -24,7 +24,7 @@ public class Aula {
                 return true;
             }
         }
-        return false; // Dia/Hora invalido o ya estaba ocupado
+        return false; // Dia/Hora invalido o ya esta ocupado
     }
 
     // LIBERAR UN HORARIO

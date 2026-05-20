@@ -15,7 +15,7 @@ public class MongoDBManager {
         collection = database.getCollection("estudiantes");
     }
 
-    // Método para guardar tu objeto Estudiante en NoSQL
+    // Método para guardar  Estudiante en NoSQL
     public void guardarEstudiante(Estudiante est) {
         Document doc = new Document("id", est.getId())
                 .append("nombre", est.getNombre())

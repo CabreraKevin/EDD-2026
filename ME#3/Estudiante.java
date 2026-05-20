@@ -22,7 +22,7 @@ public class Estudiante extends Persona {
         historialMaterias = new LinkedList<>();
     }
 
-    // --- MÉTODO AGREGADO PARA CORREGIR EL ERROR EN UNIVERSIDAD ---
+    // --- MÉTODO AGREGAR MATERIA
     public void agregarMateria(Materia mat) {
         // Agregamos el código de la materia al historial para validación de pre-requisitos
         this.historialMaterias.add(mat.getCodigo());
@@ -58,7 +58,7 @@ public class Estudiante extends Persona {
         return (contador == 0) ? 0 : suma / contador;
     }
 
-    // AGREGAR MATERIA AL HISTORIAL (Manteniendo compatibilidad)
+    // AGREGAR MATERIA AL HISTORIAL 
     public void agregarMateriaHistorial(String codigoMateria) {
         historialMaterias.add(codigoMateria);
     }

@@ -20,7 +20,7 @@ public class GrafoCampus {
 
     public void agregarEdificio(String nombre) {
         if (cantidadNodos < capacidadMaxima) {
-            // Validar que no se repita el edificio si se corre el caso 14 varias veces
+            // Validar que no se repita el edificio 
             for (int i = 0; i < cantidadNodos; i++) {
                 if (nombresEdificios[i].equalsIgnoreCase(nombre)) {
                     return; 
@@ -50,7 +50,7 @@ public class GrafoCampus {
         return -1;
     }
 
-    // NUEVO MÉTODO: Para mostrar los edificios tal cual como lo pide la guía antes de pedir los datos
+    //MÉTODO: Para mostrar los edificios 
     public void mostrarEdificiosRegistrados() {
         System.out.println("Edificios registrados:");
         for (int i = 0; i < cantidadNodos; i++) {
@@ -110,7 +110,7 @@ public class GrafoCampus {
         return minIndice;
     }
 
-    // ACOMODADO: Formato de impresión secuencial corregido sin alterar variables de cálculo
+    //Formato de impresión secuencial  sin alterar variables de cálculo
     private void imprimirResultadoDijkstra(int origen, int destino, int[] distancias, int[] predecesores) {
         if (distancias[destino] == Integer.MAX_VALUE) {
             System.out.println("\nNo existe un camino disponible entre los edificios.");
@@ -130,7 +130,7 @@ public class GrafoCampus {
             pasoActual = predecesores[pasoActual];
         }
 
-        // Impresión secuencial corregida: NodoOrigen -> NodoSiguiente (Metros) -> NodoSiguiente (Metros)
+        // Impresión secuencial: NodoOrigen -> NodoSiguiente (Metros) -> NodoSiguiente (Metros)
         System.out.print("Ruta mas corta: ");
         for (int i = cuentaPasos - 1; i >= 0; i--) {
             int nodoActual = caminoInvertido[i];
@@ -139,7 +139,7 @@ public class GrafoCampus {
                 // Es el punto de partida inicial
                 System.out.print(nombresEdificios[nodoActual]);
             } else {
-                // Es un paso intermedio o el destino final, recuperamos el peso del tramo anterior
+                // Es un paso intermedio o el destino final, 
                 int nodoAnterior = caminoInvertido[i + 1];
                 int pesoTramo = matrizAdyacencia[nodoAnterior][nodoActual];
                 System.out.print(" -> " + nombresEdificios[nodoActual] + " (" + pesoTramo + "m)");

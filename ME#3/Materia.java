@@ -13,7 +13,7 @@ public class Materia {
     private LinkedList<Estudiante> inscritos;
     private Queue<Estudiante> colaEspera;
 
-    // Agregamos el gestor de base de datos
+    // Agregue el gestor de base de datos
     private MongoDBManager mongoManager; 
 
     public Materia(String codigo, String nombre, int cuposMaximos, int creditos) {
@@ -26,25 +26,23 @@ public class Materia {
         this.inscritos = new LinkedList<>();
         this.colaEspera = new ArrayDeque<>();
         
-        // Inicializamos el gestor
+        // Inicializa el gestor
         this.mongoManager = new MongoDBManager();
         
-        // Persistimos la nueva materia en MongoDB
+        // Persiste la nueva materia en MongoDB
         persistirMateria();
     }
 
     // Método para guardar esta materia en NoSQL
     private void persistirMateria() {
         try {
-            // MongoDBManager necesitaría un método para guardar objetos Materia
-            // Si no quieres crear otro método en MongoDBManager, puedes usar la lógica aquí:
+            // MongoDBManager necesita un método para guardar objetos Materia
             Document doc = new Document("codigo", this.codigo)
                     .append("nombre", this.nombre)
                     .append("cupos", this.cuposMaximos)
                     .append("creditos", this.creditos);
             
-            // Nota: Aquí estamos insertando, si quisieras actualizar, usarías un update
-            //mongoManager.getCollection("materias").insertOne(doc); 
+            // Aquí estamos insertando
             System.out.println("Materia guardada en MongoDB: " + this.nombre);
         } catch (Exception e) {
             System.out.println("Error al guardar materia en Mongo: " + e.getMessage());

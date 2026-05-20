@@ -1,4 +1,4 @@
-// Operacion.java
+
 public class Operacion {
     private String tipo;
     private Object origen;

@@ -16,7 +16,7 @@ public class SistemaDeshacer {
         System.out.println("Operacion guardada.");
     }
 
-    // MODIFICADO: Lanza excepción si la pila está vacía
+    // METODÓ: Lanza excepción si la pila está vacía
     public void deshacer() throws PilaDeshacerVaciaException {
         if (pilaDeshacer.isEmpty()) {
             throw new PilaDeshacerVaciaException("No hay operaciones para deshacer.");
@@ -29,7 +29,7 @@ public class SistemaDeshacer {
         operacion.mostrarOperacion();
     }
 
-    // MODIFICADO: Lanza excepción si la pila está vacía
+    //METODÓ: Lanza excepción si la pila está vacía
     public void rehacer() throws PilaDeshacerVaciaException {
         if (pilaRehacer.isEmpty()) {
             throw new PilaDeshacerVaciaException("No hay operaciones para rehacer.");
