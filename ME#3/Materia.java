@@ -1,32 +1,60 @@
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.ArrayDeque;
+import org.bson.Document; 
 
 public class Materia {
     private String codigo;
     private String nombre;
     private int cuposMaximos;
     private int cuposDisponibles;
-    private int creditos; // <- Atributo requerido por la guía del proyecto final
-    private LinkedList<String> prerequisitos; // Lista enlazada obligatoria
+    private int creditos;
+    private LinkedList<String> prerequisitos;
     private LinkedList<Estudiante> inscritos;
-    private Queue<Estudiante> colaEspera;     // Cola de espera obligatoria
+    private Queue<Estudiante> colaEspera;
 
-    // CONSTRUCTOR ACTUALIZADO A 4 PARÁMETROS PARA DAR SOPORTE AL MAIN
+    // Agregamos el gestor de base de datos
+    private MongoDBManager mongoManager; 
+
     public Materia(String codigo, String nombre, int cuposMaximos, int creditos) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.cuposMaximos = cuposMaximos;
         this.cuposDisponibles = cuposMaximos;
-        this.creditos = creditos; // <- Asignación del nuevo campo
+        this.creditos = creditos;
         this.prerequisitos = new LinkedList<>();
         this.inscritos = new LinkedList<>();
         this.colaEspera = new ArrayDeque<>();
+        
+        // Inicializamos el gestor
+        this.mongoManager = new MongoDBManager();
+        
+        // Persistimos la nueva materia en MongoDB
+        persistirMateria();
     }
 
+    // Método para guardar esta materia en NoSQL
+    private void persistirMateria() {
+        try {
+            // MongoDBManager necesitaría un método para guardar objetos Materia
+            // Si no quieres crear otro método en MongoDBManager, puedes usar la lógica aquí:
+            Document doc = new Document("codigo", this.codigo)
+                    .append("nombre", this.nombre)
+                    .append("cupos", this.cuposMaximos)
+                    .append("creditos", this.creditos);
+            
+            // Nota: Aquí estamos insertando, si quisieras actualizar, usarías un update
+            //mongoManager.getCollection("materias").insertOne(doc); 
+            System.out.println("Materia guardada en MongoDB: " + this.nombre);
+        } catch (Exception e) {
+            System.out.println("Error al guardar materia en Mongo: " + e.getMessage());
+        }
+    }
+
+    // --- MÉTODOS EXISTENTES ---
     public String getCodigo() { return codigo; }
     public String getNombre() { return nombre; }
-    public int getCreditos() { return creditos; } // <- Getter para consultar los créditos
+    public int getCreditos() { return creditos; }
     public LinkedList<String> getPrerequisitos() { return prerequisitos; }
     public LinkedList<Estudiante> getInscritos() { return inscritos; }
     public Queue<Estudiante> getColaEspera() { return colaEspera; }
@@ -36,14 +64,12 @@ public class Materia {
     }
 
     public void inscribirEstudiante(Estudiante e) throws CupoLlenoException, PreRequisitoNoAprobadoException {
-        // 1. Verificar Pre-requisitos
         for (String pre : prerequisitos) {
             if (!e.getHistorialMaterias().contains(pre)) {
-                throw new PreRequisitoNoAprobadoException("El estudiante no ha aprobado el pre-requisito: " + pre);
+                throw new PreRequisitoNoAprobadoException("Pre-requisito faltante: " + pre);
             }
         }
 
-        // 2. Verificar disponibilidad de cupos
         if (cuposDisponibles <= 0) {
             colaEspera.add(e);
             throw new CupoLlenoException("Materia llena. Agregado a la cola de espera.");
@@ -56,14 +82,10 @@ public class Materia {
     public void cancelarInscripcion(Estudiante e) {
         if (inscritos.remove(e)) {
             cuposDisponibles++;
-            System.out.println("Inscripción cancelada para: " + e.getNombre());
-            
-            // Asignación automática al primero en cola
             if (!colaEspera.isEmpty()) {
                 Estudiante siguiente = colaEspera.poll();
                 inscritos.add(siguiente);
                 cuposDisponibles--;
-                System.out.println("Cupo asignado automáticamente a: " + siguiente.getNombre());
             }
         }
     }

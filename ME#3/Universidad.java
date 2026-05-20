@@ -9,6 +9,9 @@ public class Universidad {
     private HashMap<String, Estudiante> indiceEstudiantes;
     private TreeMap<String, Aula> controlAulas;
     private int[][] distanciasEdificios;
+    
+    // Nueva integración NoSQL
+    private MongoDBManager mongoManager;
 
     public Universidad(String nombre) {
         this.nombre = nombre;
@@ -16,27 +19,23 @@ public class Universidad {
         this.listaMaterias = new ArrayList<>();
         this.indiceEstudiantes = new HashMap<>();
         this.controlAulas = new TreeMap<>();
-        // Inicialización de matriz de distancias (ejemplo 5x5)
         this.distanciasEdificios = new int[5][5]; 
+        
+     
+        this.mongoManager = new MongoDBManager();
     }
 
-    // --- MÉTODOS DEL SISTEMA ---
+    // --- MÉTODOS DE GESTIÓN ---
 
-    public SistemaDeshacer getSistemaDeshacer() {
-        return this.sistemaDeshacer;
-    }
-
-    public void agregarMateria(Materia materia) {
-        this.listaMaterias.add(materia);
-    }
-
-    public void mostrarMaterias() {
-        if (listaMaterias.isEmpty()) {
-            System.out.println("No hay materias registradas.");
-        } else {
-            for (Materia m : listaMaterias) {
-                System.out.println(m);
-            }
+    public void registrarEstudiante(Estudiante est) {
+        // 1. Guardamos en el HashMap para acceso rápido en memoria
+        indiceEstudiantes.put(est.getId(), est);
+        
+        // 2. Persistencia en MongoDB (Requisito NoSQL)
+        try {
+            mongoManager.guardarEstudiante(est);
+        } catch (Exception e) {
+            System.out.println("Error guardando en MongoDB: " + e.getMessage());
         }
     }
 
@@ -53,26 +52,36 @@ public class Universidad {
 
         if (est != null && mat != null) {
             est.agregarMateria(mat);
+            // Creamos la operación para el sistema de Deshacer
+            sistemaDeshacer.agregarOperacion(new Operacion("INSCRIPCION", idEst, codMat, "Inscrito en " + mat.getNombre()));
             System.out.println("Inscripción exitosa: " + est.getNombre() + " en " + mat.getNombre());
         } else {
             System.out.println("Error: Estudiante o Materia no encontrados.");
         }
     }
 
-    public void registrarEstudiante(Estudiante est) {
-        indiceEstudiantes.put(est.getId(), est);
-    }
+    // --- MÉTODOS DE CONSULTA Y MOSTRAR ---
 
     public Estudiante buscarEstudiantePorId(String id) {
         return indiceEstudiantes.get(id);
+    }
+
+    public void agregarMateria(Materia materia) {
+        this.listaMaterias.add(materia);
     }
 
     public void registrarAula(Aula aula) {
         controlAulas.put(aula.getNombre(), aula);
     }
 
-    public Aula obtenerAula(String nombre) {
-        return controlAulas.get(nombre);
+    public void mostrarMaterias() {
+        if (listaMaterias.isEmpty()) {
+            System.out.println("No hay materias registradas.");
+        } else {
+            for (Materia m : listaMaterias) {
+                System.out.println(m);
+            }
+        }
     }
 
     public void mostrarAulasOrdenadas() {
@@ -94,8 +103,8 @@ public class Universidad {
             System.out.println();
         }
     }
-    
-    public HashMap<String, Estudiante> getIndiceEstudiantes() {
-        return indiceEstudiantes;
-    }
+
+    // --- GETTERS ---
+    public SistemaDeshacer getSistemaDeshacer() { return this.sistemaDeshacer; }
+    public HashMap<String, Estudiante> getIndiceEstudiantes() { return indiceEstudiantes; }
 }

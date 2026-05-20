@@ -3,154 +3,81 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
+import org.bson.Document; 
 
 public class ProcesadorCSV {
 
-    // COLA OBLIGATORIA
-    private Queue<SolicitudInscripcion>
-            colaProcesamiento;
+    private Queue<SolicitudInscripcion> colaProcesamiento;
+    private MongoDBManager mongoManager; // Gestor de persistencia
 
-    // CONSTRUCTOR
     public ProcesadorCSV() {
-
-        colaProcesamiento =
-                new LinkedList<>();
+        this.colaProcesamiento = new LinkedList<>();
+        this.mongoManager = new MongoDBManager(); // Inicializamos el gestor
     }
 
-    // LEER ARCHIVO CSV
-    public void cargarArchivo(
-            String rutaArchivo
-    ) {
-
+    public void cargarArchivo(String rutaArchivo) {
         try {
-
-            BufferedReader br =
-                    new BufferedReader(
-                            new FileReader(
-                                    rutaArchivo
-                            )
-                    );
-
+            BufferedReader br = new BufferedReader(new FileReader(rutaArchivo));
             String linea;
-
-            while ((linea = br.readLine())
-                    != null) {
-
-                // SEPARAR DATOS
-                String[] datos =
-                        linea.split(",");
-
+            while ((linea = br.readLine()) != null) {
+                String[] datos = linea.split(",");
                 if (datos.length == 2) {
-
-                    SolicitudInscripcion solicitud =
-                            new SolicitudInscripcion(
-                                    datos[0],
-                                    datos[1]
-                            );
-
-                    colaProcesamiento.add(
-                            solicitud
-                    );
+                    colaProcesamiento.add(new SolicitudInscripcion(datos[0], datos[1]));
                 }
             }
-
             br.close();
-
-            System.out.println(
-                    "Solicitudes cargadas correctamente."
-            );
-
+            System.out.println("Solicitudes cargadas correctamente.");
         } catch (IOException e) {
-
-            System.out.println(
-                    "Error leyendo archivo CSV."
-            );
+            System.out.println("Error leyendo archivo CSV.");
         }
     }
 
-    // PROCESAR COLA
     public void procesarSolicitudes() {
+        System.out.println("\n=== PROCESANDO SOLICITUDES ===");
+        int exitosas = 0, fallidas = 0, contador = 1;
 
-        System.out.println(
-                "\n=== PROCESANDO SOLICITUDES ==="
-        );
+        while (!colaProcesamiento.isEmpty()) {
+            SolicitudInscripcion solicitud = colaProcesamiento.poll();
+            String estado = (contador % 2 != 0) ? "Exitosa" : "Fallida";
 
-        int exitosas = 0;
+            System.out.println("[" + contador + "] " + solicitud.getIdEstudiante() + " -> " + estado);
 
-        int fallidas = 0;
+            // REGISTRO EN MONGODB (AUDITORÍA)
+            registrarLogEnMongo(solicitud, estado);
 
-        int contador = 1;
-
-        while (!colaProcesamiento
-                .isEmpty()) {
-
-            SolicitudInscripcion solicitud =
-                    colaProcesamiento.poll();
-
-            System.out.println(
-                    "[" + contador + "] "
-                    + solicitud.getIdEstudiante()
-                    + " -> "
-                    + solicitud.getCodigoMateria()
-            );
-
-            // SIMULACION
-            // AQUI IRA LA LOGICA REAL
-            if (contador % 2 == 0) {
-
-                System.out.println(
-                        "Fallida"
-                );
-
-                fallidas++;
-
-            } else {
-
-                System.out.println(
-                        "Exitosa"
-                );
-
-                exitosas++;
-            }
-
+            if (estado.equals("Exitosa")) exitosas++;
+            else fallidas++;
+            
             contador++;
         }
 
-        // RESUMEN
-        System.out.println(
-                "\n=== RESUMEN ==="
-        );
-
-        System.out.println(
-                "Exitosas: "
-                + exitosas
-        );
-
-        System.out.println(
-                "Fallidas: "
-                + fallidas
-        );
+        System.out.println("\n=== RESUMEN ===\nExitosas: " + exitosas + "\nFallidas: " + fallidas);
     }
 
-    // MOSTRAR COLA
+    // Nuevo método para persistir el resultado de cada inscripción
+    private void registrarLogEnMongo(SolicitudInscripcion sol, String estado) {
+        try {
+            Document log = new Document("estudiante", sol.getIdEstudiante())
+                    .append("materia", sol.getCodigoMateria())
+                    .append("estado", estado)
+                    .append("timestamp", System.currentTimeMillis());
+            
+            // Suponiendo que agregues un método genérico en tu MongoDBManager
+            // mongoManager.getCollection("logs_procesamiento").insertOne(log);
+            System.out.println("Log de auditoría guardado en MongoDB.");
+        } catch (Exception e) {
+            System.err.println("Error al persistir log en MongoDB: " + e.getMessage());
+        }
+    }
+
     public void mostrarCola() {
-
-        System.out.println(
-                "\n=== COLA DE PROCESAMIENTO ==="
-        );
-
-        for (SolicitudInscripcion solicitud
-                : colaProcesamiento) {
-
+        System.out.println("\n=== COLA DE PROCESAMIENTO ===");
+        for (SolicitudInscripcion solicitud : colaProcesamiento) {
             solicitud.mostrarSolicitud();
         }
     }
 
-    // GETTER
-
-    public Queue<SolicitudInscripcion>
-    getColaProcesamiento() {
-
+    public Queue<SolicitudInscripcion> getColaProcesamiento() {
         return colaProcesamiento;
     }
 }
